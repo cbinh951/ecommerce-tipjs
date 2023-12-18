@@ -14,17 +14,12 @@ app.use(compression());
 
 // init db
 require('./dbs/init.mongodb');
-const { checkOverload } = require('./helpers/check.connect');
-checkOverload();
-// init routes
+// const { checkOverload } = require('./helpers/check.connect');
+// checkOverload();
 
+// init routes
+console.log('routes');
+app.use('/', require('./routes'));
 // handle error
 
-app.get('/', (req, res, next) => {
-  const strCompress = 'Hello Binh Pham';
-  return res.status(200).json({
-    message: 'Welcome to our API',
-    metadata: strCompress.repeat(100000),
-  });
-});
 module.exports = app;

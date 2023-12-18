@@ -19,7 +19,8 @@ class Database {
     }
     mongoose
       .connect(connectString)
-      .then((_) => console.log("connect success", countConnect()))
+      // .then((_) => console.log("connect success", countConnect()))
+      .then((_) => console.log("connect success"))
       .catch((err) => console.log("error connect", err));
   }
   static getInstance() {
