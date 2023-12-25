@@ -3,6 +3,7 @@
 
 POST {{url_dev}}/shop/signup
 Content-Type: application/json
+x-api-key: b5c9e3479caa669d13132607042665bb45fdf2c9f3f6ad3363c12b5a2663f2345e04129db5e3479b886947dd368d530a0e152a7705ff19f8f8186abb59d26b34
 
 {
   "name": "Shop Binh1",
