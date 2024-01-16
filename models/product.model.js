@@ -32,8 +32,7 @@ const productSchema = new mongoose.Schema(
     },
     product_shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
     product_attributes: {
-      type: Schema.Types,
-      Mixed,
+      type: mongoose.Schema.Types.Mixed,
       required: true,
     },
   },
@@ -43,7 +42,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const clothingSchema = new Schema(
+const clothingSchema = new mongoose.Schema(
   {
     brand: { type: String, require: true },
     size: String,
@@ -56,7 +55,7 @@ const clothingSchema = new Schema(
   }
 );
 
-const electronicSchema = new Schema(
+const electronicSchema = new mongoose.Schema(
   {
     manufacture: { type: String, require: true },
     model: String,

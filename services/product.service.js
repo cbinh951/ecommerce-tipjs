@@ -1,13 +1,13 @@
-const { BadRequestError } = require("../core/error.response");
-const { product, clothing, electronic } = require("../models/product.model");
+const { BadRequestError } = require('../core/error.response');
+const { product, clothing, electronic } = require('../models/product.model');
 
 // define a factory for creating products
 class ProductFactory {
   static createProduct(type, payload) {
     switch (type) {
-      case "Electronics":
+      case 'Electronics':
         return new Electronics(payload);
-      case "Clothing":
+      case 'Clothing':
         return new Clothing(payload).createProduct();
       default:
         return new BadRequestError(`Invalid product type ${type}`);
@@ -46,10 +46,10 @@ class Product {
 class Clothing extends Product {
   async createProduct() {
     const newClothing = await clothing.create(this.product_attributes);
-    if (!newClothing) throw new BadRequestError("Create new clothing failed");
+    if (!newClothing) throw new BadRequestError('Create new clothing failed');
 
     const newProduct = await super.createProduct();
-    if (!newProduct) throw new BadRequestError("Create new product failed");
+    if (!newProduct) throw new BadRequestError('Create new product failed');
 
     return newProduct;
   }
@@ -63,10 +63,10 @@ class Electronics extends Product {
       product_shop: this.product_shop,
     });
     if (!newElectronic)
-      throw new BadRequestError("Create new Electronics failed");
+      throw new BadRequestError('Create new Electronics failed');
 
     const newProduct = await super.createProduct(newElectronic._id);
-    if (!newProduct) throw new BadRequestError("Create new product failed");
+    if (!newProduct) throw new BadRequestError('Create new product failed');
 
     return newProduct;
   }
