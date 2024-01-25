@@ -72,5 +72,5 @@ const electronicSchema = new mongoose.Schema(
 module.exports = {
   product: mongoose.model(DOCUMENT_NAME, productSchema),
   electronic: mongoose.model('Electronics', electronicSchema),
-  electronic: mongoose.model('Clothing', clothingSchema),
+  clothing: mongoose.model('Clothing', clothingSchema),
 };
