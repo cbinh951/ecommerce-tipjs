@@ -6,7 +6,7 @@ class ProductFactory {
   static createProduct(type, payload) {
     switch (type) {
       case 'Electronics':
-        return new Electronics(payload);
+        return new Electronics(payload).createProduct();
       case 'Clothing':
         return new Clothing(payload).createProduct();
       default:
