@@ -1,14 +1,16 @@
-'use strict';
+"use strict";
 
-const mongoose = require('mongoose'); // Erase if already required
+const mongoose = require("mongoose"); // Erase if already required
+const slugify = require("slugify");
 
-const DOCUMENT_NAME = 'Product';
-const COLLECTION_NAME = 'Products';
+const DOCUMENT_NAME = "Product";
+const COLLECTION_NAME = "Products";
 
 // Declare the Schema of the Mongo model
 const productSchema = new mongoose.Schema(
   {
     product_name: {
+      // quan jean cao cap
       type: String,
       required: true,
     },
@@ -17,6 +19,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     product_description: String,
+    product_slug: String, // quan-jean-cao-cap
     product_price: {
       type: Number,
       required: true,
@@ -28,12 +31,32 @@ const productSchema = new mongoose.Schema(
     product_type: {
       type: String,
       required: true,
-      enum: ['Electronics', 'Clothing', 'Furniture'],
+      enum: ["Electronics", "Clothing", "Furniture"],
     },
-    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
     product_attributes: {
       type: mongoose.Schema.Types.Mixed,
       required: true,
+    },
+    product_rating: {
+      type: Number,
+      default: 4.5,
+      min: [1, "Rating must be above 1.0"],
+      max: [1, "Rating must be above 5.0"],
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    product_variations: { type: Array, default: [] },
+    isDraft: {
+      type: Boolean,
+      default: true,
+      index: true,
+      select: false,
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
+      index: true,
+      select: false,
     },
   },
   {
@@ -42,16 +65,22 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+// Document middleware: runs before .save() and .create()
+productSchema.pre("save", function (next) {
+  this.product_slug = slugify(this.product_name, { lower: true });
+  next();
+});
+
 const clothingSchema = new mongoose.Schema(
   {
     brand: { type: String, require: true },
     size: String,
     material: String,
-    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     timestamps: true,
-    collection: 'clothes',
+    collection: "clothes",
   }
 );
 
@@ -60,11 +89,11 @@ const electronicSchema = new mongoose.Schema(
     manufacture: { type: String, require: true },
     model: String,
     color: String,
-    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     timestamps: true,
-    collection: 'electronics',
+    collection: "electronics",
   }
 );
 
@@ -73,19 +102,18 @@ const furnitureSchema = new mongoose.Schema(
     brand: { type: String, require: true },
     size: String,
     material: String,
-    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     timestamps: true,
-    collection: 'furnitures',
+    collection: "furnitures",
   }
 );
-
 
 //Export the model
 module.exports = {
   product: mongoose.model(DOCUMENT_NAME, productSchema),
-  electronic: mongoose.model('Electronics', electronicSchema),
-  clothing: mongoose.model('Clothing', clothingSchema),
-  furniture: mongoose.model('Furniture', furnitureSchema),
+  electronic: mongoose.model("Electronics", electronicSchema),
+  clothing: mongoose.model("Clothing", clothingSchema),
+  furniture: mongoose.model("Furniture", furnitureSchema),
 };
