@@ -1,9 +1,16 @@
+const { find } = require('lodash');
 const { BadRequestError } = require('../core/error.response');
-const { product, clothing, electronic, furniture } = require('../models/product.model');
+const {
+  product,
+  clothing,
+  electronic,
+  furniture,
+} = require('../models/product.model');
+const { findAllDraftsForShop } = require('../models/repositories/product.repo');
 
 // define a factory for creating products
 class ProductFactory {
-  static productRegistry = {}
+  static productRegistry = {};
 
   static registerProductType(type, classRef) {
     ProductFactory.productRegistry[type] = classRef;
@@ -11,8 +18,14 @@ class ProductFactory {
 
   static createProduct(type, payload) {
     const productClass = ProductFactory.productRegistry[type];
-    if (!productClass) throw new BadRequestError(`Invalid product type ${type}`);
+    if (!productClass)
+      throw new BadRequestError(`Invalid product type ${type}`);
     return new productClass(payload).createProduct();
+  }
+
+  static async findAllDraftsForShop(product_shop, limit = 50, skip = 0) {
+    const query = { product_shop, isDraft: true };
+    return await findAllDraftsForShop({ query, limit, skip });
   }
 }
 
@@ -83,8 +96,7 @@ class Furniture extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop,
     });
-    if (!newFurniture)
-      throw new BadRequestError('Create new furniture failed');
+    if (!newFurniture) throw new BadRequestError('Create new furniture failed');
 
     const newProduct = await super.createProduct(newFurniture._id);
     if (!newProduct) throw new BadRequestError('Create new product failed');
