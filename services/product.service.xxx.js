@@ -7,6 +7,7 @@ const {
   furniture,
 } = require('../models/product.model');
 const { findAllDraftsForShop } = require('../models/repositories/product.repo');
+const mongoose = require('mongoose');
 
 // define a factory for creating products
 class ProductFactory {
@@ -24,7 +25,10 @@ class ProductFactory {
   }
 
   static async findAllDraftsForShop(product_shop, limit = 50, skip = 0) {
-    const query = { product_shop, isDraft: true };
+    const query = {
+      product_shop: new mongoose.Types.ObjectId(product_shop),
+      isDraft: true,
+    };
     return await findAllDraftsForShop({ query, limit, skip });
   }
 }
