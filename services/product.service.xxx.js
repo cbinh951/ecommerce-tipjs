@@ -6,7 +6,15 @@ const {
   electronic,
   furniture,
 } = require('../models/product.model');
-const { findAllDraftsForShop } = require('../models/repositories/product.repo');
+const {
+  findAllDraftsForShop,
+  publishProductByShop,
+  findAllPublishForShop,
+  unPublishProductByShop,
+  searchProductByUser,
+  findAllProducts,
+  findProduct,
+} = require('../models/repositories/product.repo');
 const mongoose = require('mongoose');
 
 // define a factory for creating products
@@ -24,12 +32,58 @@ class ProductFactory {
     return new productClass(payload).createProduct();
   }
 
+  static updateProduct(type, payload) {
+    const productClass = ProductFactory.productRegistry[type];
+    if (!productClass)
+      throw new BadRequestError(`Invalid product type ${type}`);
+    return new productClass(payload).createProduct();
+  }
+
+  static async publishProductByShop({ product_shop, product_id }) {
+    return await publishProductByShop({ product_shop, product_id });
+  }
+
+  static async unPublishProductByShop({ product_shop, product_id }) {
+    return await unPublishProductByShop({ product_shop, product_id });
+  }
+
   static async findAllDraftsForShop(product_shop, limit = 50, skip = 0) {
     const query = {
       product_shop: new mongoose.Types.ObjectId(product_shop),
       isDraft: true,
     };
     return await findAllDraftsForShop({ query, limit, skip });
+  }
+
+  static async findAllPublishForShop(product_shop, limit = 50, skip = 0) {
+    const query = {
+      product_shop: product_shop,
+      isPublished: true,
+    };
+    return await findAllPublishForShop({ query, limit, skip });
+  }
+
+  static async searchProducts({ keySearch }) {
+    return await searchProductByUser({ keySearch });
+  }
+
+  static async findAllProducts({
+    limit = 50,
+    sort = 'ctime',
+    page = 1,
+    filter = { isPublished: true },
+  }) {
+    return await findAllProducts({
+      limit,
+      sort,
+      page,
+      filter,
+      select: ['product_name', 'product_price', 'product_thumb'],
+    });
+  }
+
+  static async findProduct({ product_id }) {
+    return await findProduct({ product_id, unSelect: ['__v'] });
   }
 }
 
