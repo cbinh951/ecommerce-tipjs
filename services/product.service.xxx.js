@@ -14,8 +14,10 @@ const {
   searchProductByUser,
   findAllProducts,
   findProduct,
+  updateProductById,
 } = require('../models/repositories/product.repo');
 const mongoose = require('mongoose');
+const { removeUndefinedObject, updateNestedObjectParser } = require('../ultis');
 
 // define a factory for creating products
 class ProductFactory {
@@ -32,11 +34,11 @@ class ProductFactory {
     return new productClass(payload).createProduct();
   }
 
-  static updateProduct(type, payload) {
+  static updateProduct(type, productId, payload) {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass)
       throw new BadRequestError(`Invalid product type ${type}`);
-    return new productClass(payload).createProduct();
+    return new productClass(payload).updateProduct(productId);
   }
 
   static async publishProductByShop({ product_shop, product_id }) {
@@ -112,6 +114,11 @@ class Product {
   async createProduct(product_id) {
     return await product.create({ ...this, _id: product_id });
   }
+
+  // update product
+  async updateProduct(productId, bodyUpdate) {
+    return await updateProductById({ productId, bodyUpdate, model: product });
+  }
 }
 
 // Define sub-class for different product types Clothing
@@ -127,6 +134,32 @@ class Clothing extends Product {
     if (!newProduct) throw new BadRequestError('Create new product failed');
 
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    /**
+     * {
+     *  a: undefined,
+     *  b: null
+     * }
+     */
+    // 1. remove attr has null undefined
+    const objectParams = removeUndefinedObject(this);
+    console.log('objectParams', objectParams);
+    // 2. check xem update o cho nao
+    if (objectParams.product_attributes) {
+      // update child
+      await updateProductById({
+        productId,
+        bodyUpdate: updateNestedObjectParser(objectParams.product_attributes),
+        model: clothing,
+      });
+    }
+    const updateProduct = await super.updateProduct(
+      productId,
+      updateNestedObjectParser(objectParams)
+    );
+    return updateProduct;
   }
 }
 
